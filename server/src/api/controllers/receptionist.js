@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const Receptionists = require("../../models/Receptionists");
 const { findOneReceptionist } = require("../functions/receptionistFunctions");
 
-exports.loginReceptionist = async (req, res) => {
+const loginReceptionist = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await findOneReceptionist(null, email);
@@ -37,7 +37,7 @@ exports.loginReceptionist = async (req, res) => {
   }
 };
 
-exports.registerReceptionist = async (req, res) => {
+const registerReceptionist = async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
   try {
     const user = await findOneReceptionist(null, email);
@@ -64,4 +64,9 @@ exports.registerReceptionist = async (req, res) => {
     console.log(e);
     res.status(500).json({ message: "Error on Receptionists" });
   }
+};
+
+module.exports = {
+  loginReceptionist,
+  registerReceptionist,
 };

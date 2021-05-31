@@ -2,14 +2,13 @@ const Payments = require("../../models/Payments");
 const {
   findAllPatientPayments,
   findOnePayment,
+  registerDebt,
 } = require("../functions/paymentFunctions");
 const { format, addMonths } = require("date-fns");
 const { findOnePatient } = require("../functions/patientFunctions");
 
-exports.createDebt = async (req, res) => {
+const createDebt = async (req, res) => {
   const { totalPayment, currentPayment, patientEmail } = req.body;
-  const currentDate = format(new Date(), "yyyy-MM-dd");
-  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
 
   try {
     const patientExists = await findOnePatient(patientEmail);
@@ -17,25 +16,15 @@ exports.createDebt = async (req, res) => {
     if (!patientExists) {
       res.status(404).json({ message: "Patient does not exist" });
     } else {
-      const payments = await findAllPatientPayments(patientEmail);
-      if (payments.length === 4 || payments.length > 4) {
-        res.status(403).json({ message: "The user has too many debts" });
+      const result = await registerDebt(
+        totalPayment,
+        currentPayment,
+        patientEmail
+      );
+      if (result) {
+        res.status(202).json({ message: "Debt created" });
       } else {
-        try {
-          await Payments.create({
-            TOTAL: totalPayment,
-            CURRENT_CREDIT: currentPayment ? currentPayment : "0",
-            LIMIT_PAYMENT_DATE: nextPaymentDate,
-            LAST_PAYMENT_DATE: currentDate,
-            ASSIGNED_TO: patientEmail,
-            DEBT: currentPayment ? totalPayment - currentPayment : totalPayment,
-            CREATED_AT: currentDate,
-          });
-          res.status(202).json({ message: "Debt created" });
-        } catch (e) {
-          console.log(e);
-          res.status(500).json({ message: "Error on debt creation" });
-        }
+        res.status(500).json({ message: "Error on debts" });
       }
     }
   } catch (e) {
@@ -44,7 +33,7 @@ exports.createDebt = async (req, res) => {
   }
 };
 
-exports.getAllUserPayments = async (req, res) => {
+const getAllUserPayments = async (req, res) => {
   const { patientEmail } = req.body;
 
   try {
@@ -69,7 +58,7 @@ exports.getAllUserPayments = async (req, res) => {
   }
 };
 
-exports.registerPayment = async (req, res) => {
+const registerPayment = async (req, res) => {
   const { currentPayment, patientEmail, paymentID } = req.body;
   const currentDate = format(new Date(), "yyyy-MM-dd");
   const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
@@ -107,4 +96,10 @@ exports.registerPayment = async (req, res) => {
   } catch (e) {
     console.log("Error on payment registration", e);
   }
+};
+
+module.exports = {
+  createDebt,
+  getAllUserPayments,
+  registerPayment,
 };

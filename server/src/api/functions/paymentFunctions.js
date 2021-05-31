@@ -1,7 +1,8 @@
 const { Op } = require("sequelize");
 const Payments = require("../../models/Payments");
+const { format, addMonths } = require("date-fns");
 
-exports.findAllPatientPayments = (patientEmail, paymentID) => {
+const findAllPatientPayments = (patientEmail, paymentID) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Payments.findAll({
@@ -21,7 +22,7 @@ exports.findAllPatientPayments = (patientEmail, paymentID) => {
   });
 };
 
-exports.findOnePayment = (patientEmail, paymentID) => {
+const findOnePayment = (patientEmail, paymentID) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Payments.findOne({
@@ -39,4 +40,39 @@ exports.findOnePayment = (patientEmail, paymentID) => {
       return reject("\nError retrieving information: \n", e);
     }
   });
+};
+
+const registerDebt = (totalPayment, currentPayment, patientEmail) => {
+  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
+
+  return new Promise(async (resolve, reject) => {
+    const payments = await findAllPatientPayments(patientEmail);
+    if (payments.length === 4 || payments.length > 4) {
+      res.status(403).json({ message: "The user has too many debts" });
+    } else {
+      try {
+        const result = await Payments.create({
+          TOTAL: totalPayment,
+          CURRENT_CREDIT: currentPayment ? currentPayment : "0",
+          LIMIT_PAYMENT_DATE: nextPaymentDate,
+          LAST_PAYMENT_DATE: currentDate,
+          ASSIGNED_TO: patientEmail,
+          DEBT: currentPayment ? totalPayment - currentPayment : totalPayment,
+          CREATED_AT: currentDate,
+        });
+
+        resolve(result.dataValues);
+      } catch (e) {
+        console.log(e);
+        reject(false);
+      }
+    }
+  });
+};
+
+module.exports = {
+  findOnePayment,
+  findAllPatientPayments,
+  registerDebt,
 };

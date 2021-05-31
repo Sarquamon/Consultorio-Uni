@@ -4,7 +4,8 @@ const {
   loginReceptionist,
   registerReceptionist,
 } = require("../controllers/receptionist");
-const { bookADate } = require("../controllers/dates");
+const { bookADate, getAllDatesForToday } = require("../controllers/dates");
+const { registerDoctor } = require("../controllers/doctor");
 const { registerPatient } = require("../controllers/patient");
 const {
   createDebt,
@@ -22,5 +23,7 @@ router.post("/createDebt", createDebt);
 router.get("/getAllUserPayments", getAllUserPayments);
 router.post("/registerPayment", registerPayment);
 router.post("/book", /* isValidSession, */ bookADate);
+router.get("/getAlltodayDates", /* isValidSession, */ getAllDatesForToday);
+router.post("/registerDoctor", registerDoctor);
 
 module.exports = router;

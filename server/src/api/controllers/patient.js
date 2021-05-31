@@ -1,7 +1,7 @@
 const Patients = require("../../models/Patients");
 const { findOnePatient } = require("../functions/patientFunctions");
 
-exports.registerPatient = async (req, res) => {
+const registerPatient = async (req, res) => {
   const { email, phone, firstName, lastName } = req.body;
   try {
     const user = await findOnePatient(email);
@@ -27,4 +27,7 @@ exports.registerPatient = async (req, res) => {
     console.log(e);
     res.status(500).json({ message: "Error on Receptionists" });
   }
+};
+module.exports = {
+  registerPatient,
 };

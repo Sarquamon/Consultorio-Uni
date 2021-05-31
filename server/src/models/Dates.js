@@ -14,11 +14,11 @@ const Dates = conn.define(
       allowNull: false,
       autoIncrement: true,
     },
-    ID_PATIENT: {
-      type: Sequelize.INTEGER,
+    PATIENT_EMAIL: {
+      type: Sequelize.STRING(100),
       references: {
         model: Patients,
-        key: "ID_PATIENT",
+        key: "EMAIL",
       },
     },
     ID_DOCTOR: {

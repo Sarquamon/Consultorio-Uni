@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Doctors = require("../../models/Doctors");
 
-exports.findOneDoctor = (doctorID, doctorEmail) => {
+const findOneDoctor = (doctorID, doctorEmail) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Doctors.findOne({
@@ -19,4 +19,8 @@ exports.findOneDoctor = (doctorID, doctorEmail) => {
       return reject("\nError retrieving information: \n", e);
     }
   });
+};
+
+module.exports = {
+  findOneDoctor,
 };

@@ -1,6 +1,6 @@
 const JWT = require("jsonwebtoken");
 
-exports.isValidSession = async (req, res, next) => {
+const isValidSession = async (req, res, next) => {
   const { jwt } = req.body;
   if (jwt) {
     try {
@@ -19,4 +19,8 @@ exports.isValidSession = async (req, res, next) => {
     console.log("No token was provided");
     res.status(400).json({ message: "No jwt was provided" });
   }
+};
+
+module.exports = {
+  isValidSession,
 };

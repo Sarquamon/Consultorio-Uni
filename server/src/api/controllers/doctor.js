@@ -1,7 +1,7 @@
 const Doctors = require("../../models/Doctors");
 const { findOneDoctor } = require("../functions/doctorFunctions");
 
-exports.registerDoctor = async (req, res) => {
+const registerDoctor = async (req, res) => {
   const { email, phone, firstName, lastName, speciality } = req.body;
   try {
     const user = await findOneDoctor(null, email);
@@ -28,4 +28,8 @@ exports.registerDoctor = async (req, res) => {
     console.log(e);
     res.status(500).json({ message: "Error on Receptionists" });
   }
+};
+
+module.exports = {
+  registerDoctor,
 };
