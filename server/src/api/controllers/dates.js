@@ -9,6 +9,7 @@ const {
   getAllDates,
   isRequestedDoctorAvailable,
   patientHasDateForSpecifiedDate,
+  getAllAvailableDoctors,
 } = require("../functions/dateFunctions");
 const { findOnePatient } = require("../functions/patientFunctions");
 const { registerDebt } = require("../functions/paymentFunctions");
@@ -101,7 +102,24 @@ const getAllDatesForToday = async (_req, res) => {
   }
 };
 
+const listAllAvailableDoctors = async (req, res) => {
+  const { date, doctorSpeciality } = req.body;
+  try {
+    const result = await getAllAvailableDoctors(date, doctorSpeciality);
+    console.log(result);
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ message: "No available doctor was found" });
+    }
+  } catch (e) {
+    console.log(`Error on listing all available doctors:\n${e}`);
+    res.status(500).json({ message: "Error on listing all available doctors" });
+  }
+};
+
 module.exports = {
   bookADate,
   getAllDatesForToday,
+  listAllAvailableDoctors,
 };

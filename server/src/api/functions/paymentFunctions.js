@@ -49,7 +49,7 @@ const registerDebt = (totalPayment, currentPayment, patientEmail) => {
   return new Promise(async (resolve, reject) => {
     const payments = await findAllPatientPayments(patientEmail);
     if (payments.length === 4 || payments.length > 4) {
-      res.status(403).json({ message: "The user has too many debts" });
+      resolve(false);
     } else {
       try {
         const result = await Payments.create({

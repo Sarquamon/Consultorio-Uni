@@ -1,5 +1,8 @@
 const Doctors = require("../../models/Doctors");
-const { findOneDoctor } = require("../functions/doctorFunctions");
+const {
+  findOneDoctor,
+  findAllDoctors,
+} = require("../functions/doctorFunctions");
 
 const registerDoctor = async (req, res) => {
   const { email, phone, firstName, lastName, speciality } = req.body;
@@ -30,6 +33,21 @@ const registerDoctor = async (req, res) => {
   }
 };
 
+const listAllDoctors = async (req, res) => {
+  try {
+    const result = await findAllDoctors();
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ message: "No doctors were found" });
+    }
+  } catch (e) {
+    console.log("Error on list all doctors");
+    res.status(500).json({ message: "Error on find all doctors" });
+  }
+};
+
 module.exports = {
   registerDoctor,
+  listAllDoctors,
 };

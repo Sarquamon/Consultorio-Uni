@@ -1,4 +1,5 @@
-const { Op } = require("sequelize");
+const conn = require("../../config/sqlconn");
+const { Op, QueryTypes } = require("sequelize");
 const Dates = require("../../models/Dates");
 const Doctors = require("../../models/Doctors");
 const Payments = require("../../models/Payments");
@@ -36,7 +37,7 @@ const isRequestedDoctorAvailable = (doctorID, bookingDate) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Dates.findOne({
-        include: [{ model: Doctors, required: true }],
+        attributes: ["ID_DATE"],
         where: {
           BOOKED_DATE: bookingDate,
           ID_DOCTOR: doctorID,
@@ -59,7 +60,6 @@ const patientHasDateForSpecifiedDate = (patientEmail, bookingDate) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Dates.findOne({
-        include: [{ model: Patients, required: true }],
         where: {
           BOOKED_DATE: bookingDate,
           PATIENT_EMAIL: patientEmail,
@@ -78,8 +78,34 @@ const patientHasDateForSpecifiedDate = (patientEmail, bookingDate) => {
   });
 };
 
+const getAllAvailableDoctors = (bookingDate, speciality) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await conn.query(
+        `SELECT "DOCTORS"."FIRST_NAME", "DOCTORS"."LAST_NAME", "DOCTORS"."SPECIALITY", "DOCTORS"."EMAIL", "DOCTORS"."PHONE" FROM "T_DATES" AS "DATES" INNER JOIN "T_DOCTORS" AS "DOCTORS" ON "DATES"."ID_DOCTOR" = "DOCTORS"."ID_DOCTOR" WHERE "DOCTORS"."SPECIALITY" = :speciality AND NOT "DATES"."BOOKED_DATE" = :bookingDate;`,
+        {
+          replacements: {
+            bookingDate,
+            speciality,
+          },
+          type: QueryTypes.SELECT,
+        }
+      );
+      if (result) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      console.log(`Error on get all doctors availability ${e}`);
+      reject("Error on get all doctors availability");
+    }
+  });
+};
+
 module.exports = {
   getAllDates,
   isRequestedDoctorAvailable,
   patientHasDateForSpecifiedDate,
+  getAllAvailableDoctors,
 };

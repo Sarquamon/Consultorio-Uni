@@ -17,7 +17,7 @@ conn
   .catch((err) => console.log("❌ Error on db connection:", err));
 
 conn
-  .sync({ force: true })
+  .sync({ force: false })
   .then(() => console.log("🔌 Successful db connection"))
   .catch((err) => console.log("❌ Error!", err));
 
