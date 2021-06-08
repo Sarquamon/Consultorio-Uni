@@ -1,0 +1,7 @@
+FROM postgres:12-alpine
+
+EXPOSE 5432
+
+ENV POSTGRES_PASSWORD 12
+
+ENV POSTGRES_DB consultorio
