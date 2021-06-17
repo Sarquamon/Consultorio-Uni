@@ -24,36 +24,94 @@ export const Login = () => {
   });
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <div>
-        <label htmlFor="email">Email Address</label>
+    <div className="bg-gradient-primary">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-xl-10 col-lg-12 col-md-9">
+            <div className="card o-hidden border-0 shadow-lg my-5">
+              <div className="card-body p-0">
+                <div className="row">
+                  <div className="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                  <div className="col-lg-6">
+                    <div className="p-5">
+                      <div className="text-center">
+                        <h1 className="h4 text-gray-900 mb-4">
+                          ¡Bienvenido de regreso!
+                        </h1>
+                      </div>
 
-        <input
-          id="email"
-          name="email"
-          type="email"
-          onChange={formik.handleChange}
-          value={formik.values.email}
-        />
-        {formik.touched.email && formik.errors.email ? (
-          <div>{formik.errors.email}</div>
-        ) : null}
+                      <form onSubmit={formik.handleSubmit} className="user">
+                        <div className="form-group">
+                          <label htmlFor="email">Email Address</label>
+                          <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            aria-describedby="emailHelp"
+                            placeholder="Enter Email Address..."
+                            className="form-control form-control-user"
+                            onChange={formik.handleChange}
+                            value={formik.values.email}
+                          />
+                          {formik.touched.email && formik.errors.email ? (
+                            <div style={{ color: "red" }}>
+                              {formik.errors.email}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="password">Password</label>
+                          <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                            className="form-control form-control-user"
+                            onChange={formik.handleChange}
+                            value={formik.values.password}
+                          />
+                          {formik.touched.password && formik.errors.password ? (
+                            <div style={{ color: "red" }}>
+                              {formik.errors.password}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="form-group">
+                          <div className="custom-control custom-checkbox small">
+                            <input
+                              type="checkbox"
+                              className="custom-control-input"
+                              id="customCheck"
+                            />
+                            <label
+                              className="custom-control-label"
+                              htmlFor="customCheck"
+                            >
+                              Recuerdame en este dispositivo
+                            </label>
+                          </div>
+                        </div>
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-user btn-block"
+                        >
+                          Iniciar Sesión
+                        </button>
+                      </form>
+                      <hr />
+                      <div className="text-center">
+                        <a className="small" href="forgot-password.html">
+                          ¿Olvidaste tu contraseña?
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          onChange={formik.handleChange}
-          value={formik.values.password}
-        />
-        {formik.touched.password && formik.errors.password ? (
-          <div>{formik.errors.password}</div>
-        ) : null}
-      </div>
-
-      <button type="submit">Submit</button>
-    </form>
+    </div>
   );
 };
