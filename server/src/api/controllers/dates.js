@@ -103,7 +103,8 @@ const getAllDatesForToday = async (_req, res) => {
 };
 
 const listAllAvailableDoctors = async (req, res) => {
-  const { date, doctorSpeciality } = req.body;
+  const { date, doctorSpeciality } = req.query;
+  console.log(date, doctorSpeciality);
   try {
     const result = await getAllAvailableDoctors(date, doctorSpeciality);
     console.log(result);

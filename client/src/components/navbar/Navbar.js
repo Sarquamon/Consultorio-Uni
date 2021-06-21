@@ -21,11 +21,13 @@ export const Navbar = ({ token }) => {
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className="nav-link active" to="/signin">
-                Login
-              </Link>
-            </li>
+            {!token && (
+              <li className="nav-item">
+                <Link className="nav-link active" to="/signin">
+                  Login
+                </Link>
+              </li>
+            )}
             {token && (
               <>
                 <li className="nav-item">
@@ -39,8 +41,23 @@ export const Navbar = ({ token }) => {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/signin">
+                  <Link className="nav-link" to="/registerPatient">
                     Registrar Paciente
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/registerDoctor">
+                    Registrar Doctor
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/registerReceptionist">
+                    Registrar Recepcionista
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/registerPayment">
+                    Registrar Pago
                   </Link>
                 </li>
               </>

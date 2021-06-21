@@ -26,7 +26,6 @@ const findOnePayment = (patientEmail, paymentID) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Payments.findOne({
-        // attributes: ["ID_PAYMENT", "ASSIGNED_TO"],
         where: {
           [Op.or]: [
             { ID_PAYMENT: paymentID || null },

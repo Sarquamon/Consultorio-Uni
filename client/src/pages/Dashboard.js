@@ -115,7 +115,7 @@ export const Dashboard = () => {
                   className="table table-bordered"
                   id="dataTable"
                   width="100%"
-                  cellspacing="0"
+                  cellSpacing="0"
                 >
                   <thead>
                     <tr>
@@ -170,7 +170,7 @@ export const Dashboard = () => {
                   className="table table-bordered"
                   id="dataTable"
                   width="100%"
-                  cellspacing="0"
+                  cellSpacing="0"
                 >
                   <thead>
                     <tr>

@@ -64,7 +64,7 @@ const registerPayment = async (req, res) => {
   const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
 
   try {
-    const payment = await findOnePayment(null, paymentID);
+    const payment = await findOnePayment(patientEmail, paymentID);
     if (!payment) {
       res.status(403).json({ message: "The user has no debts" });
     } else {

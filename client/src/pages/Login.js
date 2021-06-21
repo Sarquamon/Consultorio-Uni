@@ -1,10 +1,13 @@
 import React from "react";
 import Axios from "axios";
 
+import { useHistory } from "react-router-dom";
+
 import { useFormik } from "formik";
 import { signinSchema } from "../utils/formSchemas";
 
-export const Login = () => {
+export const Login = ({ setToken }) => {
+  const history = useHistory();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -15,10 +18,24 @@ export const Login = () => {
     onSubmit: async (values) => {
       try {
         const result = await Axios.post("http://localhost:9000/login", values);
-        console.log(result);
-        localStorage.setItem("currentToken", result.data.token);
+        if (result.status === 200) {
+          localStorage.setItem("currentToken", result.data.token);
+          setToken(localStorage.getItem("currentToken"));
+          history.push("/");
+        }
       } catch (e) {
-        console.log("Error on request: ", e);
+        if (e.response) {
+          if (
+            e.response.status === 404 &&
+            e.response.message === "Receptionists not found"
+          ) {
+            console.log("No receptionists were found");
+          } else {
+            console.log("Error on request: ", e);
+          }
+        } else {
+          console.log("Error on request: ", e);
+        }
       }
     },
   });
