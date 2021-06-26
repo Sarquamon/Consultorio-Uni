@@ -13,6 +13,7 @@ Dates.belongsTo(Receptionists, { foreingKey: "ID_RECEPTIONIST" });
 
 const getAllDates = (date) => {
   return new Promise(async (resolve, reject) => {
+    console.log("get all dates");
     try {
       const result = await Dates.findAll({
         include: [
@@ -25,7 +26,11 @@ const getAllDates = (date) => {
           [Op.or]: [{ BOOKED_DATE: date || null }],
         },
       });
-      return resolve(result);
+      if (result && result > 0) {
+        return resolve(result);
+      } else {
+        return resolve(false);
+      }
     } catch (e) {
       console.log("\nError retrieving information: \n", e);
       return reject("\nError retrieving information: \n", e);
@@ -50,8 +55,8 @@ const isRequestedDoctorAvailable = (doctorID, bookingDate) => {
         resolve(true);
       }
     } catch (e) {
-      console.log(`Error on doctor availability ${e}`);
-      reject("Error on doctor availability");
+      console.log(`Error on doctor availability1 ${e}`);
+      reject("Error on doctor availability1");
     }
   });
 };
@@ -81,20 +86,25 @@ const patientHasDateForSpecifiedDate = (patientEmail, bookingDate) => {
 const getAllAvailableDoctors = (bookingDate, speciality) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const result = await conn.query(
-        `SELECT "DOCTORS"."FIRST_NAME", "DOCTORS"."LAST_NAME", "DOCTORS"."SPECIALITY", "DOCTORS"."EMAIL", "DOCTORS"."PHONE" FROM "T_DATES" AS "DATES" INNER JOIN "T_DOCTORS" AS "DOCTORS" ON "DATES"."ID_DOCTOR" = "DOCTORS"."ID_DOCTOR" WHERE "DOCTORS"."SPECIALITY" = :speciality AND NOT "DATES"."BOOKED_DATE" = :bookingDate;`,
-        {
-          replacements: {
-            bookingDate,
-            speciality,
-          },
-          type: QueryTypes.SELECT,
+      const dates = await getAllDates(bookingDate);
+      if (dates.length > 0) {
+        const result = await conn.query(
+          `SELECT "DOCTORS"."FIRST_NAME", "DOCTORS"."LAST_NAME", "DOCTORS"."SPECIALITY", "DOCTORS"."EMAIL", "DOCTORS"."PHONE" FROM "T_DATES" AS "DATES" INNER JOIN "T_DOCTORS" AS "DOCTORS" ON "DATES"."ID_DOCTOR" = "DOCTORS"."ID_DOCTOR" WHERE "DOCTORS"."SPECIALITY" = :speciality AND NOT "DATES"."BOOKED_DATE" = :bookingDate`,
+          {
+            replacements: {
+              bookingDate,
+              speciality,
+            },
+            type: QueryTypes.SELECT,
+          }
+        );
+        if (result) {
+          resolve(result);
+        } else {
+          resolve(false);
         }
-      );
-      if (result) {
-        resolve(result);
       } else {
-        resolve(false);
+        resolve(true);
       }
     } catch (e) {
       console.log(`Error on get all doctors availability ${e}`);

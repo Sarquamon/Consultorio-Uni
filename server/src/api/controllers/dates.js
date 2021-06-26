@@ -11,12 +11,13 @@ const {
   patientHasDateForSpecifiedDate,
   getAllAvailableDoctors,
 } = require("../functions/dateFunctions");
+const { findAllDoctorsBySpeciality } = require("../functions/doctorFunctions");
 const { findOnePatient } = require("../functions/patientFunctions");
 const { registerDebt } = require("../functions/paymentFunctions");
 
 const bookADate = async (req, res) => {
   const {
-    bookingDate,
+    date,
     doctorID,
     patientEmail,
     receptionistID,
@@ -32,7 +33,7 @@ const bookADate = async (req, res) => {
     } else {
       const isDoctorAvailable = await isRequestedDoctorAvailable(
         doctorID,
-        bookingDate
+        date
       );
       if (!isDoctorAvailable) {
         res
@@ -46,7 +47,7 @@ const bookADate = async (req, res) => {
         } else {
           const patientHasDate = await patientHasDateForSpecifiedDate(
             patientEmail,
-            bookingDate
+            date
           );
           if (!patientHasDate) {
             const debt = await registerDebt(
@@ -58,7 +59,7 @@ const bookADate = async (req, res) => {
               await Dates.create({
                 PATIENT_EMAIL: patientEmail,
                 ID_DOCTOR: doctorID,
-                BOOKED_DATE: bookingDate,
+                BOOKED_DATE: date,
                 ID_RECEPTIONIST: receptionistID,
                 ID_PAYMENT: debt.ID_PAYMENT,
               });
@@ -69,7 +70,7 @@ const bookADate = async (req, res) => {
               // ? ERROR ON PATIENT DEBT CREATION
               res
                 .status(403)
-                .json({ message: "Could not create a debt for the patient" });
+                .json({ message: "Patient has too many debts" });
             }
           } else {
             // ? PATIENT HAS DATE
@@ -90,7 +91,6 @@ const getAllDatesForToday = async (_req, res) => {
   const currentDate = format(new Date(), "yyyy-MM-dd");
   try {
     const result = await getAllDates(currentDate);
-    console.log(result);
     if (result.length > 0) {
       res.status(200).json({ result });
     } else {
@@ -109,7 +109,20 @@ const listAllAvailableDoctors = async (req, res) => {
     const result = await getAllAvailableDoctors(date, doctorSpeciality);
     console.log(result);
     if (result) {
-      res.status(200).json(result);
+      if (result.length > 0) {
+        res.status(200).json(result);
+      } else {
+        try {
+          const doctors = await findAllDoctorsBySpeciality(doctorSpeciality);
+          if (doctors) {
+            res.status(200).json(doctors);
+          } else {
+            res.status(404).json({ message: "No available doctor was found" });
+          }
+        } catch (e) {
+          res.status(404).json({ message: "No available doctor was found" });
+        }
+      }
     } else {
       res.status(404).json({ message: "No available doctor was found" });
     }

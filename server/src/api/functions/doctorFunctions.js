@@ -37,7 +37,28 @@ const findAllDoctors = (doctorID, doctorEmail) => {
   });
 };
 
+const findAllDoctorsBySpeciality = (speciality) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Doctors.findAll({
+        where: {
+          SPECIALITY: speciality,
+        },
+      });
+      if (result.length > 0) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      console.log("\nError retrieving information: \n", e);
+      return reject("\nError retrieving information: \n", e);
+    }
+  });
+};
+
 module.exports = {
   findOneDoctor,
   findAllDoctors,
+  findAllDoctorsBySpeciality,
 };
