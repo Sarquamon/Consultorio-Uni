@@ -9,6 +9,7 @@ import { RegisterReceptionist } from "../../pages/RegisterReceptionist";
 import { RegisterDoctor } from "../../pages/RegisterDoctor";
 import { Login } from "../../pages/Login";
 import { Dates } from "../../pages/Dates";
+import { RegisterPayment } from "../../pages/RegisterPayment";
 
 export const Router = () => {
   const [token, setToken] = useState(localStorage.getItem("currentToken"));
@@ -28,7 +29,7 @@ export const Router = () => {
         <Route exact path="/registerPatient" component={RegisterPatient} />
         <Route exact path="/registerDoctor" component={RegisterDoctor} />
         <Route exact path="/dates" component={Dates} />
-        <Route exact path="/registerPayment" component={Dates} />
+        <Route exact path="/registerPayment" component={RegisterPayment} />
         <Route
           exact
           path="/registerReceptionist"
