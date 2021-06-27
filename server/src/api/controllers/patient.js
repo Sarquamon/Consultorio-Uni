@@ -1,5 +1,8 @@
 const Patients = require("../../models/Patients");
-const { findOnePatient } = require("../functions/patientFunctions");
+const {
+  findOnePatient,
+  findAllPatients,
+} = require("../functions/patientFunctions");
 
 const registerPatient = async (req, res) => {
   const { email, phone, firstName, lastName } = req.body;
@@ -28,6 +31,22 @@ const registerPatient = async (req, res) => {
     res.status(500).json({ message: "Error on Receptionists" });
   }
 };
+
+const getRegisteredPatients = async (req, res) => {
+  try {
+    const users = await findAllPatients();
+    if (users && users.length > 0) {
+      res.status(200).json({ totalUsers: users.length });
+    } else {
+      res.status(200).json({ totalUsers: 0 });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(502).json({ message: "Error on listing users" });
+  }
+};
+
 module.exports = {
+  getRegisteredPatients,
   registerPatient,
 };

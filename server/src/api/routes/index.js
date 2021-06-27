@@ -8,9 +8,18 @@ const {
   bookADate,
   getAllDatesForToday,
   listAllAvailableDoctors,
+  getTotalDatesForToday,
+  getMonthDates,
 } = require("../controllers/dates");
-const { registerDoctor, listAllDoctors } = require("../controllers/doctor");
-const { registerPatient } = require("../controllers/patient");
+const {
+  registerDoctor,
+  listAllDoctors,
+  getTotalDoctors,
+} = require("../controllers/doctor");
+const {
+  registerPatient,
+  getRegisteredPatients,
+} = require("../controllers/patient");
 const {
   createDebt,
   getAllUserPayments,
@@ -46,5 +55,10 @@ router.post("/registerDoctor", registerDoctor);
 // ? Doctors - GETTERS
 router.get("/listAllDoctors", listAllDoctors);
 router.get("/listAllAvailableDoctors", listAllAvailableDoctors);
+
+router.get("/getTotalDoctors", getTotalDoctors);
+router.get("/getMonthDates", getMonthDates);
+router.get("/getTotalDatesForToday", getTotalDatesForToday);
+router.get("/getRegisteredPatients", getRegisteredPatients);
 
 module.exports = router;

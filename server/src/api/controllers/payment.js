@@ -60,8 +60,8 @@ const getAllUserPayments = async (req, res) => {
 
 const registerPayment = async (req, res) => {
   const { currentPayment, patientEmail, paymentID } = req.body;
-  const currentDate = format(new Date(), "yyyy-MM-dd");
-  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
+  const currentDate = format(new Date(), "yyyy-mm-dd");
+  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-mm-dd");
 
   try {
     const payment = await findOnePayment(patientEmail, paymentID);

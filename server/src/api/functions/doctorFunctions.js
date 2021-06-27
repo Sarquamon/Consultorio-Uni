@@ -21,7 +21,7 @@ const findOneDoctor = (doctorID, doctorEmail) => {
   });
 };
 
-const findAllDoctors = (doctorID, doctorEmail) => {
+const findAllDoctors = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Doctors.findAll();

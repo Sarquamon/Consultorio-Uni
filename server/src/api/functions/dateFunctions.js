@@ -13,7 +13,6 @@ Dates.belongsTo(Receptionists, { foreingKey: "ID_RECEPTIONIST" });
 
 const getAllDates = (date) => {
   return new Promise(async (resolve, reject) => {
-    console.log("get all dates");
     try {
       const result = await Dates.findAll({
         include: [
@@ -26,6 +25,7 @@ const getAllDates = (date) => {
           [Op.or]: [{ BOOKED_DATE: date || null }],
         },
       });
+      console.log(result);
       if (result && result > 0) {
         return resolve(result);
       } else {

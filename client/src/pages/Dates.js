@@ -80,7 +80,7 @@ export const Dates = () => {
                             id="date"
                             name="date"
                             value={values["date"]}
-                            placeholder="Fecha deseada (Ej. 2021/06/30)"
+                            placeholder="Fecha deseada (Ej. 2021-06-30)"
                             className="form-control form-control-user"
                           />
                           {touched.date && errors.date ? (

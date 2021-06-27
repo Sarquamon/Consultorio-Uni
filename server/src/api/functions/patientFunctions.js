@@ -21,6 +21,19 @@ const findOnePatient = (patientEmail, patientID) => {
   });
 };
 
+const findAllPatients = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Patients.findAll();
+      return resolve(result);
+    } catch (e) {
+      console.log("\nError retrieving information: \n", e);
+      return reject("\nError retrieving information: \n", e);
+    }
+  });
+};
+
 module.exports = {
   findOnePatient,
+  findAllPatients,
 };

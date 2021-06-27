@@ -47,7 +47,23 @@ const listAllDoctors = async (req, res) => {
   }
 };
 
+const getTotalDoctors = async (req, res) => {
+  try {
+    const result = await findAllDoctors();
+    if (result) {
+      res.status(200).json({ totalDoctors: result.length });
+    } else {
+      console.log("nada");
+      res.status(200).json({ totalDoctors: 0 });
+    }
+  } catch (e) {
+    console.log("Error on list all doctors");
+    res.status(500).json({ message: "Error on find all doctors" });
+  }
+};
+
 module.exports = {
   registerDoctor,
+  getTotalDoctors,
   listAllDoctors,
 };

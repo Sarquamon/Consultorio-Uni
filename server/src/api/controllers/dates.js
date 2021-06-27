@@ -24,7 +24,9 @@ const bookADate = async (req, res) => {
     totalPayment,
     currentPayment,
   } = req.body;
-  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const currentDate = format(new Date(), "yyyy-mm-dd");
+  const formattedDate = format(new Date(date), "yyyy-mm-dd");
+  console.log(formattedDate);
 
   try {
     const avaliableDates = await getAllDates(currentDate);
@@ -68,9 +70,7 @@ const bookADate = async (req, res) => {
               });
             } else {
               // ? ERROR ON PATIENT DEBT CREATION
-              res
-                .status(403)
-                .json({ message: "Patient has too many debts" });
+              res.status(403).json({ message: "Patient has too many debts" });
             }
           } else {
             // ? PATIENT HAS DATE
@@ -88,13 +88,43 @@ const bookADate = async (req, res) => {
 };
 
 const getAllDatesForToday = async (_req, res) => {
-  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const currentDate = format(new Date(), "yyyy-mm-dd");
   try {
     const result = await getAllDates(currentDate);
     if (result.length > 0) {
       res.status(200).json({ result });
     } else {
       res.status(200).json({ message: "No dates for today" });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Error on dates retrieval" });
+  }
+};
+
+const getTotalDatesForToday = async (_req, res) => {
+  const currentDate = format(new Date(), "yyyy-mm-dd");
+  try {
+    const result = await getAllDates(currentDate);
+    if (result.length > 0) {
+      res.status(200).json({ totalDates: result.length });
+    } else {
+      res.status(200).json({ totalDates: 0 });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Error on dates retrieval" });
+  }
+};
+
+const getMonthDates = async (_req, res) => {
+  const currentDate = format(new Date(), "yyyy-mm-dd");
+  try {
+    const result = await getAllDates(currentDate);
+    if (result.length > 0) {
+      res.status(200).json({ totalDates: result.length });
+    } else {
+      res.status(200).json({ totalDates: 0 });
     }
   } catch (e) {
     console.log(e);
@@ -136,4 +166,6 @@ module.exports = {
   bookADate,
   getAllDatesForToday,
   listAllAvailableDoctors,
+  getTotalDatesForToday,
+  getMonthDates,
 };
