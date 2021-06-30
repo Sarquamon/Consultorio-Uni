@@ -3,62 +3,68 @@ const express = require("express");
 const {
   loginReceptionist,
   registerReceptionist,
+  updateReceptionist,
+  deleteReceptionist,
+  getAllReceptionists,
 } = require("../controllers/receptionist");
 const {
-  bookADate,
-  getAllDatesForToday,
-  listAllAvailableDoctors,
-  getTotalDatesForToday,
+  deleteDate,
+  updateDate,
+  getAllDates,
+  registerDate,
   getMonthDates,
+  getAllDatesForToday,
+  getTotalDatesForToday,
+  getAllAvailableDoctors,
 } = require("../controllers/dates");
 const {
   registerDoctor,
-  listAllDoctors,
+  getAllDoctors,
   getTotalDoctors,
+  updateDoctor,
+  deleteDoctor,
 } = require("../controllers/doctor");
 const {
   registerPatient,
-  getRegisteredPatients,
+  getTotalPatients,
+  getAllPatients,
+  deletePatient,
+  updatePatient,
 } = require("../controllers/patient");
-const {
-  createDebt,
-  getAllUserPayments,
-  registerPayment,
-} = require("../controllers/payment");
-const { isValidSession } = require("../../utils/utils");
+const { getAllPayments, registerPayment } = require("../controllers/payment");
+// const { isValidSession } = require("../../utils/utils");
 
 const router = express.Router();
 
-// ? Receptionists - POSTERS
-router.post("/register", registerReceptionist);
 router.post("/login", loginReceptionist);
 
-// ? Patients - POSTERS
-router.post("/registerPatient", registerPatient);
-
-// ? Payments - POSTERS
-router.post("/createDebt", createDebt);
-router.post("/registerPayment", registerPayment);
-
-// ? Payments - GETTERS
-router.get("/getAllUserPayments", getAllUserPayments);
-
-// ? Dates - POSTERS
-router.post("/book", /* isValidSession, */ bookADate);
-
-// ? Dates - GETTERS
-router.get("/getAlltodayDates", /* isValidSession, */ getAllDatesForToday);
-
-// ? Doctors - POSTERS
+router.post("/registerDate", registerDate);
 router.post("/registerDoctor", registerDoctor);
+router.post("/registerPayment", registerPayment);
+router.post("/registerPatient", registerPatient);
+router.post("/registerReceptionist", registerReceptionist);
 
-// ? Doctors - GETTERS
-router.get("/listAllDoctors", listAllDoctors);
-router.get("/listAllAvailableDoctors", listAllAvailableDoctors);
+router.get("/getAllDates", getAllDates);
+router.get("/getAllDoctors", getAllDoctors);
+router.get("/getAllPayments", getAllPayments);
+router.get("/getAllPatients", getAllPatients);
+router.get("/getAllReceptionists", getAllReceptionists);
+router.get("/getAllAvailableDoctors", getAllAvailableDoctors);
 
 router.get("/getTotalDoctors", getTotalDoctors);
-router.get("/getMonthDates", getMonthDates);
+router.get("/getTotalMonthDates", getMonthDates);
+router.get("/getTotalPatients", getTotalPatients);
+router.get("/getAlltodayDates", getAllDatesForToday);
 router.get("/getTotalDatesForToday", getTotalDatesForToday);
-router.get("/getRegisteredPatients", getRegisteredPatients);
+
+router.put("/editDate", updateDate);
+router.put("/editDoctor", updateDoctor);
+router.put("/editPatient", updatePatient);
+router.put("/editReceptionist", updateReceptionist);
+
+router.delete("/deleteDate", deleteDate);
+router.delete("/deleteDoctor", deleteDoctor);
+router.delete("/deletePatient", deletePatient);
+router.delete("/deleteReceptionist", deleteReceptionist);
 
 module.exports = router;

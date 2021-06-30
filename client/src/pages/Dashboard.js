@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
+
+import { Link } from "react-router-dom";
 import Axios from "axios";
 
-export const Dashboard = () => {
+export const Dashboard = (props, { token }) => {
+  console.log(props);
   const [isLoading, setIsLoading] = useState(true);
   const [totalMonthDates, setTotalMonthDates] = useState(0);
   const [totalDoctors, setTotalDoctors] = useState(0);
@@ -10,17 +13,17 @@ export const Dashboard = () => {
   const [allTodayDates, setAllTodayDates] = useState([]);
   const getDashboardValues = async () => {
     try {
+      const totalMonthDates = await Axios.get(
+        "http://localhost:9000/getTotalMonthDates"
+      );
       const totalDoctors = await Axios.get(
         "http://localhost:9000/getTotalDoctors"
-      );
-      const totalMonthDates = await Axios.get(
-        "http://localhost:9000/getMonthDates"
       );
       const totalDatesForToday = await Axios.get(
         "http://localhost:9000/getTotalDatesForToday"
       );
       const totalRegisteredPatients = await Axios.get(
-        "http://localhost:9000/getRegisteredPatients"
+        "http://localhost:9000/getTotalPatients"
       );
       const allTodayDates = await Axios.get(
         "http://localhost:9000/getAlltodayDates"
@@ -29,8 +32,7 @@ export const Dashboard = () => {
       setTotalMonthDates(totalMonthDates.data.totalDates);
       setTotalDatesForToday(totalDatesForToday.data.totalDates);
       setTotalRegisteredPatients(totalRegisteredPatients.data.totalUsers);
-      setTotalRegisteredPatients(totalRegisteredPatients.data.totalUsers);
-      setAllTodayDates(allTodayDates.data);
+      setAllTodayDates(allTodayDates.data.result);
       setIsLoading(false);
     } catch (e) {
       console.log(e);
@@ -64,7 +66,15 @@ export const Dashboard = () => {
                       </div>
                     </div>
                     <div className="col-auto">
-                      <i className="fas fa-calendar fa-2x text-gray-300"></i>
+                      {token && (
+                        <div className="h5 mb-0 font-weight-bold text-gray-800">
+                          <Link to="/dates">
+                            <button className="btn btn-primary">
+                              Ver todos las citas
+                            </button>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -83,9 +93,6 @@ export const Dashboard = () => {
                       <div className="h5 mb-0 font-weight-bold text-gray-800">
                         {totalDatesForToday}
                       </div>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-dollar-sign fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -110,7 +117,15 @@ export const Dashboard = () => {
                       </div>
                     </div>
                     <div className="col-auto">
-                      <i className="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                      {token && (
+                        <div className="h5 mb-0 font-weight-bold text-gray-800">
+                          <Link to="/patients">
+                            <button className="btn btn-primary">
+                              Ver todos los pacientes
+                            </button>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -131,7 +146,15 @@ export const Dashboard = () => {
                       </div>
                     </div>
                     <div className="col-auto">
-                      <i className="fas fa-comments fa-2x text-gray-300"></i>
+                      {token && (
+                        <div className="h5 mb-0 font-weight-bold text-gray-800">
+                          <Link to="/doctors">
+                            <button className="btn btn-primary">
+                              Ver todos los doctores
+                            </button>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -142,104 +165,71 @@ export const Dashboard = () => {
           {/* 1 row end */}
           <div className="row">
             {/* <!-- Area Chart --> */}
-            <div className="col-xl-8 col-lg-7">
+            <div className="col">
               <div className="card shadow mb-4">
                 {/* <!-- Card Header - Dropdown --> */}
                 <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 className="m-0 font-weight-bold text-primary">
-                    {console.log(allTodayDates)}
                     Citas del día
                   </h6>
                 </div>
                 {/* <!-- Card Body --> */}
                 <div className="card-body">
-                  <div className="table-responsive">
-                    <table
-                      className="table table-bordered"
-                      id="dataTable"
-                      width="100%"
-                      cellSpacing="0"
-                    >
-                      <thead>
-                        <tr>
-                          <th>Paciente</th>
-                          <th>Hora</th>
-                          <th>Doctor</th>
-                          <th>Total</th>
-                          <th>Deuda Restante</th>
-                          <th>Saldo</th>
-                        </tr>
-                      </thead>
-                      <tfoot>
-                        <tr>
-                          <th>Paciente</th>
-                          <th>Hora</th>
-                          <th>Doctor</th>
-                          <th>Total</th>
-                          <th>Deuda Restante</th>
-                          <th>Saldo</th>
-                        </tr>
-                      </tfoot>
-                      <tbody>
-                        {/* ! CHANGE THIS FOR A MAP COMMING FROM API */}
-                        <tr>
-                          <td>Tiger Nixon</td>
-                          <td>System Architect</td>
-                          <td>Edinburgh</td>
-                          <td>61</td>
-                          <td>2011/04/25</td>
-                          <td>$320,800</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  {totalDatesForToday ? (
+                    <div className="table-responsive">
+                      <table
+                        className="table table-bordered"
+                        id="dataTable"
+                        width="100%"
+                        cellSpacing="0"
+                      >
+                        <thead>
+                          <tr>
+                            <th>Paciente</th>
+                            <th>Hora</th>
+                            <th>Doctor</th>
+                            <th>Total</th>
+                            <th>Deuda Restante</th>
+                            <th>Saldo</th>
+                          </tr>
+                        </thead>
+                        <tfoot>
+                          <tr>
+                            <th>Paciente</th>
+                            <th>Fecha</th>
+                            <th>Doctor</th>
+                            <th>Total</th>
+                            <th>Deuda Restante</th>
+                            <th>Saldo</th>
+                          </tr>
+                        </tfoot>
+                        <tbody>
+                          {allTodayDates.map((date) => {
+                            return (
+                              <tr key={date.id}>
+                                <td>{date.patientEmail}</td>
+                                <td>{date.booked_date}</td>
+                                <td>
+                                  {date.Doctor.firstname} {date.Doctor.lastname}
+                                </td>
+                                <td>{date.Payment.total}</td>
+                                <td>{date.Payment.debt}</td>
+                                <td>{date.Payment.current_credit}</td>
+                              </tr>
+                            );
+                          })}
 
-            {/* <!-- Pie Chart --> */}
-            <div className="col-xl-4 col-lg-5">
-              <div className="card shadow mb-4">
-                {/* <!-- Card Header - Dropdown --> */}
-                <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 className="m-0 font-weight-bold text-primary">
-                    Deudas por vencer
-                  </h6>
-                </div>
-                {/* <!-- Card Body --> */}
-                <div className="card-body">
-                  <div className="table-responsive">
-                    <table
-                      className="table table-bordered"
-                      id="dataTable"
-                      width="100%"
-                      cellSpacing="0"
-                    >
-                      <thead>
-                        <tr>
-                          <th>Paciente</th>
-                          <th>Fecha limite</th>
-                          <th>Deuda Restante</th>
-                          <th>Saldo</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* ! CHANGE THIS FOR A MAP COMMING FROM API */}
-                        <tr>
-                          <td>Tiger Nixon</td>
-                          <td>System Architect</td>
-                          <td>Edinburgh</td>
-                          <td>61</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                          <tr></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <h3>No hay citas para hoy</h3>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-
-          {/* 2 row end */}
         </div>
       )}
     </>

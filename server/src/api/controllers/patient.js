@@ -11,28 +11,28 @@ const registerPatient = async (req, res) => {
     if (user) {
       res
         .status(409)
-        .json({ message: "A patient with that email already exists!" });
+        .json({ message: "¡Un paciente con ese email ya existe!" });
     } else {
       try {
         await Patients.create({
-          EMAIL: email,
-          PHONE: phone,
-          FIRST_NAME: firstName,
-          LAST_NAME: lastName,
+          email,
+          phone,
+          firstname: firstName,
+          lastname: lastName,
         });
-        res.status(202).json({ message: "Patient created" });
+        res.status(202).json({ message: "Paciente creado" });
       } catch (e) {
         console.log(e);
-        res.status(500).json({ message: "Error on patient creation" });
+        res.status(500).json({ message: "Error al crear el paciente" });
       }
     }
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "Error on Receptionists" });
+    res.status(500).json({ message: "Error al crear el paciente" });
   }
 };
 
-const getRegisteredPatients = async (req, res) => {
+const getTotalPatients = async (_req, res) => {
   try {
     const users = await findAllPatients();
     if (users && users.length > 0) {
@@ -46,7 +46,76 @@ const getRegisteredPatients = async (req, res) => {
   }
 };
 
+const getAllPatients = async (_req, res) => {
+  try {
+    const users = await findAllPatients();
+    if (users && users.length > 0) {
+      res.status(200).json(users);
+    } else {
+      res.status(200).json({ message: "No users" });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(502).json({ message: "Error on listing users" });
+  }
+};
+
+const deletePatient = async (req, res) => {
+  const { email } = req.query;
+  try {
+    const patient = await findOnePatient(email, null);
+    if (!patient) {
+      res.status(409).json({
+        message: "El paciente no existe",
+      });
+    } else {
+      try {
+        await Patients.destroy({
+          where: {
+            email,
+          },
+        });
+        res.status(202).json({ message: "Paciente borrado" });
+      } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: "Fallo al borrar el paciente" });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(502).json({ message: "Fallo al borrar el paciente" });
+  }
+};
+
+const updatePatient = async (req, res) => {
+  const { email, phone } = req.body;
+  try {
+    const result = await findOnePatient(email, null);
+    if (!result) {
+      res.status(409).json({
+        message: "El paciente no existe",
+      });
+    } else {
+      await Patients.update(
+        { phone },
+        {
+          where: {
+            email,
+          },
+        }
+      );
+      res.status(202).json({ message: "paciente actualizado" });
+    }
+  } catch (e) {
+    console.log("Error on finding patient");
+    res.status(500).json({ message: "Error on finding patient" });
+  }
+};
+
 module.exports = {
-  getRegisteredPatients,
+  getTotalPatients,
   registerPatient,
+  getAllPatients,
+  deletePatient,
+  updatePatient,
 };

@@ -1,16 +1,13 @@
 const { Op } = require("sequelize");
 const Patients = require("../../models/Patients");
 
-const findOnePatient = (patientEmail, patientID) => {
+const findOnePatient = (email, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Patients.findOne({
-        attributes: ["ID_PATIENT", "EMAIL"],
+        attributes: ["email"],
         where: {
-          [Op.or]: [
-            { ID_PATIENT: patientID || null },
-            { EMAIL: patientEmail || null },
-          ],
+          [Op.or]: [{ email }],
         },
       });
       return resolve(result);

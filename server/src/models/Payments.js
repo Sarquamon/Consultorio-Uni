@@ -2,48 +2,42 @@ const Sequelize = require("sequelize");
 const conn = require("../config/sqlconn");
 const Patients = require("./Patients");
 
-const Payments = conn.define(
-  "T_PAYMENTS",
-  {
-    ID_PAYMENT: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      allowNull: false,
-      autoIncrement: true,
-    },
-    TOTAL: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    CURRENT_CREDIT: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    LIMIT_PAYMENT_DATE: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    LAST_PAYMENT_DATE: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    DEBT: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    ASSIGNED_TO: {
-      type: Sequelize.STRING(100),
-      references: {
-        model: Patients,
-        key: "EMAIL",
-      },
-    },
-    CREATED_AT: {
-      type: Sequelize.STRING(50),
-      allowNull: true,
+const Payments = conn.define("Payment", {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    allowNull: false,
+    autoIncrement: true,
+  },
+  total: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
+  current_credit: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
+  limit_payment_date: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
+  last_payment_date: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
+  debt: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+  },
+  assigned_to: {
+    type: Sequelize.STRING(100),
+    references: {
+      model: "Patients",
+      key: "email",
     },
   },
-  { timestamps: false, freezeTableName: true }
-);
+});
+
+Payments.belongsTo(Patients);
 
 module.exports = Payments;

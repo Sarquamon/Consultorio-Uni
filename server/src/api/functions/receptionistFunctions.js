@@ -1,19 +1,33 @@
 const { Op } = require("sequelize");
 const Receptionists = require("../../models/Receptionists");
 
-const findOneReceptionist = (receptionistId, receptionistEmail) => {
+const findOneReceptionist = (id, email) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Receptionists.findOne({
-        attributes: ["ID_RECEPTIONIST", "EMAIL", "PWD"],
+        attributes: ["id", "email", "pwd"],
         where: {
-          [Op.or]: [
-            { ID_RECEPTIONIST: receptionistId || null },
-            { EMAIL: receptionistEmail || null },
-          ],
+          [Op.or]: [{ id }, { email }],
         },
       });
+      console.log(result);
       return resolve(result);
+    } catch (e) {
+      console.log("\nError retrieving information: \n", e);
+      return reject("\nError retrieving information: \n", e);
+    }
+  });
+};
+
+const findAllReceptionists = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Receptionists.findAll();
+      if (result.length > 0) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
     } catch (e) {
       console.log("\nError retrieving information: \n", e);
       return reject("\nError retrieving information: \n", e);
@@ -23,4 +37,5 @@ const findOneReceptionist = (receptionistId, receptionistEmail) => {
 
 module.exports = {
   findOneReceptionist,
+  findAllReceptionists,
 };

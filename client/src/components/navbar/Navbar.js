@@ -41,23 +41,23 @@ export const Navbar = ({ token }) => {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/registerPatient">
-                    Registrar Paciente
+                  <Link className="nav-link" to="/patients">
+                    Pacientes
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/registerDoctor">
-                    Registrar Doctor
+                  <Link className="nav-link" to="/doctors">
+                    Doctores
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/registerReceptionist">
-                    Registrar Recepcionista
+                  <Link className="nav-link" to="/receptionist">
+                    Recepcionistas
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/registerPayment">
-                    Registrar Pago
+                  <Link className="nav-link" to="/payments">
+                    Pagos
                   </Link>
                 </li>
               </>

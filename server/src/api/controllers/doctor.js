@@ -15,11 +15,11 @@ const registerDoctor = async (req, res) => {
     } else {
       try {
         await Doctors.create({
-          EMAIL: email,
-          PHONE: phone,
-          FIRST_NAME: firstName,
-          LAST_NAME: lastName,
-          SPECIALITY: speciality,
+          email,
+          phone,
+          firstname: firstName,
+          lastname: lastName,
+          speciality,
         });
         res.status(202).json({ message: "Doctor created" });
       } catch (e) {
@@ -29,17 +29,17 @@ const registerDoctor = async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "Error on Receptionists" });
+    res.status(500).json({ message: "Error on doctors" });
   }
 };
 
-const listAllDoctors = async (req, res) => {
+const getAllDoctors = async (_req, res) => {
   try {
     const result = await findAllDoctors();
     if (result) {
       res.status(200).json(result);
     } else {
-      res.status(404).json({ message: "No doctors were found" });
+      res.status(200).json({ message: "No doctors were found" });
     }
   } catch (e) {
     console.log("Error on list all doctors");
@@ -53,7 +53,6 @@ const getTotalDoctors = async (req, res) => {
     if (result) {
       res.status(200).json({ totalDoctors: result.length });
     } else {
-      console.log("nada");
       res.status(200).json({ totalDoctors: 0 });
     }
   } catch (e) {
@@ -62,8 +61,62 @@ const getTotalDoctors = async (req, res) => {
   }
 };
 
+const updateDoctor = async (req, res) => {
+  const { email, phone } = req.body;
+  try {
+    const result = await findOneDoctor(null, email);
+    if (!result) {
+      res.status(409).json({
+        message: "El doctor no existe",
+      });
+    } else {
+      await Doctors.update(
+        { phone },
+        {
+          where: {
+            email,
+          },
+        }
+      );
+      res.status(202).json({ message: "doctor actualizado" });
+    }
+  } catch (e) {
+    console.log("Error on finding doctor");
+    res.status(500).json({ message: "Error on finding doctor" });
+  }
+};
+
+const deleteDoctor = async (req, res) => {
+  const { email } = req.query;
+  try {
+    const doctor = await findOneDoctor(null, email);
+    if (!doctor) {
+      res.status(409).json({
+        message: "El doctor no existe",
+      });
+    } else {
+      try {
+        await Doctors.destroy({
+          where: {
+            email,
+          },
+        });
+        res.status(202).json({ message: "Doctor borrado" });
+      } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: "Fallo al borrar del doctor" });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(502).json({ message: "Fallo al borrar el doctor" });
+  }
+};
+
 module.exports = {
   registerDoctor,
   getTotalDoctors,
-  listAllDoctors,
+  getAllDoctors,
+  updateDoctor,
+  deleteDoctor,
 };

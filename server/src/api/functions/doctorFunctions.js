@@ -1,16 +1,13 @@
 const { Op } = require("sequelize");
 const Doctors = require("../../models/Doctors");
 
-const findOneDoctor = (doctorID, doctorEmail) => {
+const findOneDoctor = (id, email) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Doctors.findOne({
-        attributes: ["ID_DOCTOR", "EMAIL"],
+        attributes: ["id", "email"],
         where: {
-          [Op.or]: [
-            { ID_DOCTOR: doctorID || null },
-            { EMAIL: doctorEmail || null },
-          ],
+          [Op.or]: [{ id }, { email }],
         },
       });
       return resolve(result);
@@ -42,7 +39,7 @@ const findAllDoctorsBySpeciality = (speciality) => {
     try {
       const result = await Doctors.findAll({
         where: {
-          SPECIALITY: speciality,
+          speciality,
         },
       });
       if (result.length > 0) {

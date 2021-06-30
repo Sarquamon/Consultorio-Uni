@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Receptionists = require("../../models/Receptionists");
-const { findOneReceptionist } = require("../functions/receptionistFunctions");
+const {
+  findOneReceptionist,
+  findAllReceptionists,
+} = require("../functions/receptionistFunctions");
 
 const loginReceptionist = async (req, res) => {
   const { email, password } = req.body;
@@ -12,10 +15,13 @@ const loginReceptionist = async (req, res) => {
       res.status(404).json({ message: "Receptionists not found" });
     } else {
       try {
-        const result = await bcrypt.compare(password, user.PWD);
+        const result = await bcrypt.compare(password, user.dataValues.pwd);
         if (result) {
           const token = jwt.sign(
-            { receptionist: user.ID_RECEPTIONIST, email: user.email },
+            {
+              receptionist: user.dataValues.id,
+              email: user.dataValues.email,
+            },
             process.env.JWT_KEY,
             {
               expiresIn: "200h",
@@ -49,10 +55,10 @@ const registerReceptionist = async (req, res) => {
       try {
         const hashedPwd = await bcrypt.hash(password, 10);
         await Receptionists.create({
-          EMAIL: email,
-          PWD: hashedPwd,
-          FIRST_NAME: firstName,
-          LAST_NAME: lastName,
+          email,
+          pwd: hashedPwd,
+          firstname: firstName,
+          lastname: lastName,
         });
         res.status(202).json({ message: "Receptionists created" });
       } catch (e) {
@@ -66,7 +72,76 @@ const registerReceptionist = async (req, res) => {
   }
 };
 
+const getAllReceptionists = async (_req, res) => {
+  try {
+    const result = await findAllReceptionists();
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(200).json({ message: "No receptionists were found" });
+    }
+  } catch (e) {
+    console.log("Error on list all receptionists");
+    res.status(500).json({ message: "Error on find all receptionist" });
+  }
+};
+
+const updateReceptionist = async (req, res) => {
+  const { email, name, lastname } = req.body;
+  try {
+    const result = await findOneReceptionist(null, email);
+    if (!result) {
+      res.status(409).json({
+        message: "El recepcionista no existe",
+      });
+    } else {
+      await Receptionists.update(
+        { firstname: name, lastname: lastname },
+        {
+          where: {
+            email,
+          },
+        }
+      );
+      res.status(202).json({ message: "Recepcionista actualizado" });
+    }
+  } catch (e) {
+    console.log("Error on finding receptionist");
+    res.status(500).json({ message: "Error on finding receptionist" });
+  }
+};
+
+const deleteReceptionist = async (req, res) => {
+  const { email } = req.query;
+  try {
+    const doctor = await findOneReceptionist(null, email);
+    if (!doctor) {
+      res.status(409).json({
+        message: "El recepcionista no existe",
+      });
+    } else {
+      try {
+        await Receptionists.destroy({
+          where: {
+            email,
+          },
+        });
+        res.status(202).json({ message: "Recepcionista borrado" });
+      } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: "Fallo al borrar del recepcionista" });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(502).json({ message: "Fallo al borrar el recepcionista" });
+  }
+};
+
 module.exports = {
   loginReceptionist,
   registerReceptionist,
+  updateReceptionist,
+  getAllReceptionists,
+  deleteReceptionist,
 };

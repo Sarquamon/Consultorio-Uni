@@ -38,3 +38,16 @@ export const registerDoctorSchema = Yup.object({
   lastName: Yup.string().required("Este campo es requerido"),
   speciality: Yup.string().required("Este campo es requerido"),
 });
+
+export const editDoctorSchema = Yup.object({
+  phone: Yup.string().required("Este campo es requerido").max(10),
+});
+
+export const editPatientSchema = Yup.object({
+  phone: Yup.string().required("Este campo es requerido").max(10),
+});
+
+export const editReceptionistSchema = Yup.object({
+  name: Yup.string().required("Este campo es requerido").max(10),
+  lastname: Yup.string().required("Este campo es requerido"),
+});

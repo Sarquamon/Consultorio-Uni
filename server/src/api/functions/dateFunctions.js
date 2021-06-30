@@ -6,12 +6,29 @@ const Payments = require("../../models/Payments");
 const Patients = require("../../models/Patients");
 const Receptionists = require("../../models/Receptionists");
 
-Dates.belongsTo(Doctors, { foreingKey: "ID_DOCTOR" });
-Dates.belongsTo(Payments, { foreingKey: "ID_PAYMENT" });
-Dates.belongsTo(Patients, { foreingKey: "EMAIL" });
-Dates.belongsTo(Receptionists, { foreingKey: "ID_RECEPTIONIST" });
+const findAllDates = async () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Dates.findAll({
+        include: [
+          { model: Doctors, required: true },
+          { model: Payments, required: true },
+          { model: Patients, required: true },
+        ],
+      });
+      if (result) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      console.log("\nError retrieving information: \n", e);
+      return reject("\nError retrieving information: \n", e);
+    }
+  });
+};
 
-const getAllDates = (date) => {
+const findAllDatesForSpecifiedDate = (booked_date) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Dates.findAll({
@@ -22,11 +39,11 @@ const getAllDates = (date) => {
           { model: Receptionists, required: true },
         ],
         where: {
-          [Op.or]: [{ BOOKED_DATE: date || null }],
+          [Op.or]: [{ booked_date }],
         },
       });
-      console.log(result);
-      if (result && result > 0) {
+
+      if (result && result.length > 0) {
         return resolve(result);
       } else {
         return resolve(false);
@@ -38,17 +55,16 @@ const getAllDates = (date) => {
   });
 };
 
-const isRequestedDoctorAvailable = (doctorID, bookingDate) => {
+const isRequestedDoctorAvailable = (doctorId, booked_date) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Dates.findOne({
-        attributes: ["ID_DATE"],
+        attributes: ["id"],
         where: {
-          BOOKED_DATE: bookingDate,
-          ID_DOCTOR: doctorID,
+          booked_date,
+          doctorId,
         },
       });
-
       if (result) {
         resolve(false);
       } else {
@@ -61,13 +77,13 @@ const isRequestedDoctorAvailable = (doctorID, bookingDate) => {
   });
 };
 
-const patientHasDateForSpecifiedDate = (patientEmail, bookingDate) => {
+const patientHasDateForSpecifiedDate = (patientEmail, booked_date) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Dates.findOne({
         where: {
-          BOOKED_DATE: bookingDate,
-          PATIENT_EMAIL: patientEmail,
+          booked_date,
+          patientEmail,
         },
       });
 
@@ -83,26 +99,27 @@ const patientHasDateForSpecifiedDate = (patientEmail, bookingDate) => {
   });
 };
 
-const getAllAvailableDoctors = (bookingDate, speciality) => {
+const findAllBusyDoctors = (booked_date, speciality) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const dates = await getAllDates(bookingDate);
+      const dates = await findAllDatesForSpecifiedDate(booked_date);
       if (dates.length > 0) {
-        const result = await conn.query(
-          `SELECT "DOCTORS"."FIRST_NAME", "DOCTORS"."LAST_NAME", "DOCTORS"."SPECIALITY", "DOCTORS"."EMAIL", "DOCTORS"."PHONE" FROM "T_DATES" AS "DATES" INNER JOIN "T_DOCTORS" AS "DOCTORS" ON "DATES"."ID_DOCTOR" = "DOCTORS"."ID_DOCTOR" WHERE "DOCTORS"."SPECIALITY" = :speciality AND NOT "DATES"."BOOKED_DATE" = :bookingDate`,
-          {
-            replacements: {
-              bookingDate,
-              speciality,
+        const result = await Dates.findAll({
+          include: [
+            {
+              model: Doctors,
+              required: true,
+              where: {
+                speciality,
+              },
             },
-            type: QueryTypes.SELECT,
-          }
-        );
-        if (result) {
-          resolve(result);
-        } else {
-          resolve(false);
-        }
+          ],
+          where: {
+            [Op.or]: [{ booked_date }],
+          },
+        });
+
+        resolve(result);
       } else {
         resolve(true);
       }
@@ -113,9 +130,63 @@ const getAllAvailableDoctors = (bookingDate, speciality) => {
   });
 };
 
+const findOneDate = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Dates.findOne({
+        include: [{ model: Payments, required: true }],
+        where: {
+          id,
+        },
+      });
+      if (result) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      console.log(`Error on get all date availability ${e}`);
+      reject("Error on get all date availability");
+    }
+  });
+};
+
+const findAllAvailableDoctor = (speciality, busyDoctors) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const busyDoctorsEmail = busyDoctors.map((dataValues) => {
+        return dataValues.Doctor.dataValues.email;
+      });
+
+      const result = await Doctors.findAll({
+        where: {
+          email: {
+            [Op.or]: {
+              [Op.not]: [].concat(busyDoctorsEmail),
+            },
+          },
+          speciality,
+        },
+      });
+
+      if (result.length > 0) {
+        resolve(result);
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      console.log(`Error on get all doctors availability ${e}`);
+      reject("Error on get all doctors availability");
+    }
+  });
+};
+
 module.exports = {
-  getAllDates,
+  findOneDate,
+  findAllDates,
+  findAllBusyDoctors,
+  findAllAvailableDoctor,
   isRequestedDoctorAvailable,
+  findAllDatesForSpecifiedDate,
   patientHasDateForSpecifiedDate,
-  getAllAvailableDoctors,
 };

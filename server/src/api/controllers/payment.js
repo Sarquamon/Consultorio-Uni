@@ -1,18 +1,18 @@
 const Payments = require("../../models/Payments");
 const {
-  findAllPatientPayments,
   findOnePayment,
   registerDebt,
+  findAllPayments,
 } = require("../functions/paymentFunctions");
-const { format, addMonths } = require("date-fns");
 const { findOnePatient } = require("../functions/patientFunctions");
+
+const moment = require("moment");
 
 const createDebt = async (req, res) => {
   const { totalPayment, currentPayment, patientEmail } = req.body;
 
   try {
     const patientExists = await findOnePatient(patientEmail);
-    console.log(patientExists);
     if (!patientExists) {
       res.status(404).json({ message: "Patient does not exist" });
     } else {
@@ -33,73 +33,62 @@ const createDebt = async (req, res) => {
   }
 };
 
-const getAllUserPayments = async (req, res) => {
-  const { patientEmail } = req.body;
-
+const getAllPayments = async (_req, res) => {
   try {
-    const patient = await findOnePatient(patientEmail);
-    if (!patient) {
-      console.log("No patient was found with that address");
-      res
-        .status(404)
-        .json({ message: "No patient was found with that address" });
+    const payments = await findAllPayments();
+    if (!payments) {
+      res.status(200).json({ message: "No hay pagos" });
     } else {
-      const payments = await findAllPatientPayments(patientEmail);
-      if (payments.length <= 0) {
-        console.log("Patient has no payments", e);
-        res.status(404).json({ message: "Patient has no payments" });
-      } else {
-        res.status(200).json({ payments });
-      }
+      res.status(200).json({ payments });
     }
   } catch (e) {
-    console.log("Error on finding patient", e);
-    res.status(500).json({ message: "Error on finding patient" });
+    console.log("Error al encontrar pagos", e);
+    res.status(500).json({ message: "Error al encontrar pagos" });
   }
 };
 
 const registerPayment = async (req, res) => {
   const { currentPayment, patientEmail, paymentID } = req.body;
-  const currentDate = format(new Date(), "yyyy-mm-dd");
-  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-mm-dd");
+  const currentDate = moment().format("YYYY-MM-DD");
+  const nextPaymentDate = moment().add(2, "M").format("YYYY-MM-DD");
 
   try {
     const payment = await findOnePayment(patientEmail, paymentID);
     if (!payment) {
-      res.status(403).json({ message: "The user has no debts" });
+      res.status(403).json({ message: "El paciente no tiene deudas" });
     } else {
       try {
         await Payments.update(
           {
-            CURRENT_CREDIT: `${
-              parseInt(payment.dataValues.CURRENT_CREDIT) +
+            current_credit: `${
+              parseInt(payment.dataValues.current_credit) +
               parseInt(currentPayment)
             }`,
-            DEBT: `${
-              parseInt(payment.dataValues.DEBT) - parseInt(currentPayment)
+            debt: `${
+              parseInt(payment.dataValues.debt) - parseInt(currentPayment)
             }`,
-            LAST_PAYMENT_DATE: currentDate,
-            LIMIT_PAYMENT_DATE: nextPaymentDate,
+            last_payment_date: currentDate,
+            limit_payment_date: nextPaymentDate,
           },
           {
             where: {
-              ID_PAYMENT: paymentID,
+              id: paymentID,
             },
           }
         );
-        res.status(202).json({ message: "Debt created" });
+        res.status(202).json({ message: "Pago actualizado" });
       } catch (e) {
         console.log(e);
-        res.status(500).json({ message: "Error on debt creation" });
+        res.status(500).json({ message: "Error al actualizar el pago" });
       }
     }
   } catch (e) {
-    console.log("Error on payment registration", e);
+    console.log("Error al actualizar el pago", e);
   }
 };
 
 module.exports = {
   createDebt,
-  getAllUserPayments,
+  getAllPayments,
   registerPayment,
 };

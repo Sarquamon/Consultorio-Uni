@@ -1,17 +1,33 @@
 const { Op } = require("sequelize");
 const Payments = require("../../models/Payments");
-const { format, addMonths } = require("date-fns");
+const moment = require("moment");
 
-const findAllPatientPayments = (patientEmail, paymentID) => {
+const findAllPayments = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await Payments.findAll();
+      if (result) {
+        if (result.length > 0) {
+          return resolve(result);
+        } else {
+          return resolve(false);
+        }
+      } else {
+        return resolve(false);
+      }
+    } catch (e) {
+      console.log("\nError retrieving information: \n", e);
+      return reject("\nError retrieving information: \n", e);
+    }
+  });
+};
+
+const findAllPatientPayments = (assigned_to, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Payments.findAll({
-        // attributes: ["ID_PAYMENT", "ASSIGNED_TO"],
         where: {
-          [Op.or]: [
-            { ID_PAYMENT: paymentID || null },
-            { ASSIGNED_TO: patientEmail || null },
-          ],
+          [Op.or]: [{ assigned_to }, { id }],
         },
       });
       return resolve(result);
@@ -22,15 +38,12 @@ const findAllPatientPayments = (patientEmail, paymentID) => {
   });
 };
 
-const findOnePayment = (patientEmail, paymentID) => {
+const findOnePayment = (assigned_to, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await Payments.findOne({
         where: {
-          [Op.or]: [
-            { ID_PAYMENT: paymentID || null },
-            { ASSIGNED_TO: patientEmail || null },
-          ],
+          [Op.or]: [{ id }, { assigned_to }],
         },
       });
       return resolve(result);
@@ -41,24 +54,23 @@ const findOnePayment = (patientEmail, paymentID) => {
   });
 };
 
-const registerDebt = (totalPayment, currentPayment, patientEmail) => {
-  const currentDate = format(new Date(), "yyyy-MM-dd");
-  const nextPaymentDate = format(addMonths(new Date(), 2), "yyyy-MM-dd");
+const registerDebt = (totalPayment, currentPayment, assigned_to) => {
+  const currentDate = moment().format("YYYY-MM-DD");
+  const nextPaymentDate = moment().add(1, "M").format("YYYY-MM-DD");
 
   return new Promise(async (resolve, reject) => {
-    const payments = await findAllPatientPayments(patientEmail);
+    const payments = await findAllPatientPayments(assigned_to, null);
     if (payments.length === 4 || payments.length > 4) {
       resolve(false);
     } else {
       try {
         const result = await Payments.create({
-          TOTAL: totalPayment,
-          CURRENT_CREDIT: currentPayment ? currentPayment : "0",
-          LIMIT_PAYMENT_DATE: nextPaymentDate,
-          LAST_PAYMENT_DATE: currentDate,
-          ASSIGNED_TO: patientEmail,
-          DEBT: currentPayment ? totalPayment - currentPayment : totalPayment,
-          CREATED_AT: currentDate,
+          total: totalPayment,
+          current_credit: currentPayment ? currentPayment : "0",
+          limit_payment_date: nextPaymentDate,
+          last_payment_date: currentDate,
+          assigned_to,
+          debt: currentPayment ? totalPayment - currentPayment : totalPayment,
         });
 
         resolve(result.dataValues);
@@ -71,7 +83,8 @@ const registerDebt = (totalPayment, currentPayment, patientEmail) => {
 };
 
 module.exports = {
-  findOnePayment,
-  findAllPatientPayments,
   registerDebt,
+  findOnePayment,
+  findAllPayments,
+  findAllPatientPayments,
 };

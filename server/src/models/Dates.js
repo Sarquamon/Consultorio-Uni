@@ -5,53 +5,50 @@ const Patients = require("./Patients");
 const Payments = require("./Payments");
 const Receptionists = require("./Receptionists");
 
-const Dates = conn.define(
-  "T_DATES",
-  {
-    ID_DATE: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      allowNull: false,
-      autoIncrement: true,
-    },
-    PATIENT_EMAIL: {
-      type: Sequelize.STRING(100),
-      references: {
-        model: Patients,
-        key: "EMAIL",
-      },
-    },
-    ID_DOCTOR: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: Doctors,
-        key: "ID_DOCTOR",
-      },
-    },
-    BOOKED_DATE: {
-      type: Sequelize.STRING(50),
-      allowNull: true,
-    },
-    ID_RECEPTIONIST: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: Receptionists,
-        key: "ID_RECEPTIONIST",
-      },
-    },
-    ID_PAYMENT: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: Payments,
-        key: "ID_PAYMENT",
-      },
-    },
-    CREATED_AT: {
-      type: Sequelize.STRING(50),
-      allowNull: true,
+const Dates = conn.define("Date", {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    allowNull: false,
+    autoIncrement: true,
+  },
+  patientEmail: {
+    type: Sequelize.STRING(100),
+    references: {
+      model: "Patients",
+      key: "email",
     },
   },
-  { timestamps: false, freezeTableName: true }
-);
+  doctorId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "Doctors",
+      key: "id",
+    },
+  },
+  booked_date: {
+    type: Sequelize.STRING(50),
+    allowNull: true,
+  },
+  receptionistId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "Receptionists",
+      key: "id",
+    },
+  },
+  paymentId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "Payments",
+      key: "id",
+    },
+  },
+});
+
+Dates.belongsTo(Doctors, { foreignKey: "doctorId" });
+Dates.belongsTo(Payments, { foreignKey: "paymentId" });
+Dates.belongsTo(Patients, { foreignKey: "patientEmail" });
+Dates.belongsTo(Receptionists, { foreignKey: "receptionistId" });
 
 module.exports = Dates;

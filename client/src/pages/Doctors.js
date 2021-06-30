@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from "react";
 
 import Axios from "axios";
-import { Link } from "react-router-dom";
 
-import { EditDateModal } from "../components/EditModal/EditDateModal/EditDateModal";
-import { DeleteDateModal } from "../components/DeleteModal/DeleteDateModal/DeleteDateModal";
+import { RegisterDoctorModal } from "../components/RegisterModal/RegisterDoctorModal/RegisterDoctorModal";
+import { EditDoctorModal } from "../components/EditModal/EditDoctorModal/EditDoctorModal";
+import { DeleteDoctorModal } from "../components/DeleteModal/DeleteDoctorModal/DeleteDoctorModal";
 
-export const Dates = () => {
+export const Doctors = () => {
+  const [doctorsArray, setDoctorsArray] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [datesArray, setDatesArray] = useState(null);
 
   useEffect(() => {
-    const getAllDates = async () => {
-      const result = await Axios.get("http://localhost:9000/getAllDates");
-      if (result.data.result) {
-        if (result.data.result.length > 0) {
-          setDatesArray(result.data.result);
-        }
+    const getAllDoctors = async () => {
+      const result = await Axios.get("http://localhost:9000/getAllDoctors");
+      if (result.data.length > 0) {
+        setDoctorsArray(result.data);
       }
       setIsLoading(false);
     };
 
-    getAllDates();
+    getAllDoctors();
   }, []);
 
-  const DateContent = () => {
+  const DoctorContent = () => {
     if (isLoading) {
       return (
         <div className="spinner-border" role="status">
@@ -39,16 +37,21 @@ export const Dates = () => {
               <div className="card shadow mb-4">
                 {/* <!-- Card Header - Dropdown --> */}
                 <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 className="m-0 font-weight-bold text-primary">Citas</h6>
-                  <Link to="/registerDate">
-                    <button type="button" className="btn btn-primary">
-                      Agendar cita
-                    </button>
-                  </Link>
+                  <h6 className="m-0 font-weight-bold text-primary">
+                    Doctores
+                  </h6>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#registerModal"
+                  >
+                    Registrar doctor
+                  </button>
                 </div>
                 {/* <!-- Card Body --> */}
                 <div className="card-body">
-                  {datesArray ? (
+                  {doctorsArray ? (
                     <>
                       <div className="table-responsive">
                         <table
@@ -59,34 +62,34 @@ export const Dates = () => {
                         >
                           <thead>
                             <tr>
-                              <th>Paciente</th>
-                              <th>Fecha</th>
-                              <th>Doctor</th>
-                              <th>Precio Total</th>
+                              <th>Nombre</th>
+                              <th>Apellido</th>
+                              <th>email</th>
+                              <th>Telefono</th>
+                              <th>Especialidad</th>
                               <th>Opciones</th>
                             </tr>
                           </thead>
                           <tfoot>
                             <tr>
-                              <th>Paciente</th>
-                              <th>Fecha</th>
-                              <th>Doctor</th>
-                              <th>Precio Total</th>
+                              <th>Nombre</th>
+                              <th>Apellido</th>
+                              <th>email</th>
+                              <th>Telefono</th>
+                              <th>Especialidad</th>
                               <th>Opciones</th>
                             </tr>
                           </tfoot>
                           <tbody>
-                            {datesArray.length > 0 ? (
+                            {doctorsArray.length > 0 ? (
                               <>
-                                {datesArray.map((date) => (
-                                  <tr key={date.id}>
-                                    <td>{date.patientEmail}</td>
-                                    <td>{date.booked_date}</td>
-                                    <td>
-                                      {date.Doctor.firstname}{" "}
-                                      {date.Doctor.lastname}
-                                    </td>
-                                    <td>{date.Payment.total}</td>
+                                {doctorsArray.map((doctor) => (
+                                  <tr key={doctor.id}>
+                                    <td>{doctor.firstname}</td>
+                                    <td>{doctor.lastname}</td>
+                                    <td>{doctor.email}</td>
+                                    <td>{doctor.phone}</td>
+                                    <td>{doctor.speciality}</td>
                                     <td>
                                       <div className="btn-group">
                                         <button
@@ -106,27 +109,30 @@ export const Dates = () => {
                                           Eliminar
                                         </button>
                                       </div>
-                                      <EditDateModal
-                                        dateId={date.Doctor.id}
-                                        dateTotal={date.total}
+                                      <EditDoctorModal
+                                        doctorEmail={doctor.email}
+                                        doctorPhone={doctor.phone}
                                       />
-                                      <DeleteDateModal id={date.id} />
+                                      <DeleteDoctorModal
+                                        doctorEmail={doctor.email}
+                                      />
                                     </td>
                                   </tr>
                                 ))}
                               </>
                             ) : (
-                              <h1>No hay citas agendadas</h1>
+                              <h1>No hay doctores registrados</h1>
                             )}
                           </tbody>
                         </table>
                       </div>
                     </>
                   ) : (
-                    <h1>No hay citas agendadas</h1>
+                    <h1>No hay doctores registrados</h1>
                   )}
                 </div>
               </div>
+              <RegisterDoctorModal />
             </div>
           </div>
         </div>
@@ -134,5 +140,5 @@ export const Dates = () => {
     }
   };
 
-  return <DateContent />;
+  return <DoctorContent />;
 };
